@@ -19,5 +19,5 @@ variable "zone" {
 variable "vm_name" {
   description = "This is Name of the VM"
   type        = string
-#  default     = "jenkins-first"
+#  default     = "my-vm"
 }
