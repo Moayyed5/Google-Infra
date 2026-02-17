@@ -1,7 +1,7 @@
 variable "gcp_project_id" {
     description = "This is gcp project id"
     type        = string
-#    default = "rock-loop-449918-b0"
+#    default = "first-project-487719"
 }
 
 variable "region" {
@@ -19,5 +19,5 @@ variable "zone" {
 variable "vm_name" {
   description = "This is Name of the VM"
   type        = string
-#  default     = "my-vm"
+#  default     = "jenkins-first"
 }
