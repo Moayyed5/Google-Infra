@@ -1,50 +1,31 @@
-resource "google_compute_network" "vpc_1" {
-  name                    = "vpc-1"
+resource "google_compute_network" "custom_network" {
+  name                    = "custom_vpc"
   auto_create_subnetworks = false
 }
 
-resource "google_compute_network" "vpc_2" {
-  name                    = "vpc-2"
-  auto_create_subnetworks = false
-}
-
-# Create Subnet for VPC-1
-resource "google_compute_subnetwork" "subnet_1" {
-  name          = "subnet-1"
-  network       = google_compute_network.vpc_1.self_link
-  ip_cidr_range = "10.0.1.0/24"
+resource "google_compute_subnetwork" "custom_subnet" {
+  name          = "custom_subnetwork"
+  ip_cidr_range = "10.0.10.0/16"
   region        = var.region
+  network       = google_compute_network.custom_network.id
 }
 
-# Create Subnet for VPC-2
-resource "google_compute_subnetwork" "subnet_2" {
-  name          = "subnet-2"
-  network       = google_compute_network.vpc_2.self_link
-  ip_cidr_range = "10.0.2.0/24"
-  region        = var.region
-}
-
-# Allow SSH & ICMP in VPC-1
-resource "google_compute_firewall" "firewall_vpc_1" {
-  name    = "allow-ssh-icmp-vpc-1"
-  network = google_compute_network.vpc_1.self_link
+# Firewall-1 For Internal Communication
+resource "google_compute_firewall" "allow-internal" {
+  name    = "internal-firewall"
+  network = google_compute_network.custom_network.id
 
   allow {
-    protocol = "icmp"
+    protocol = "all"
   }
 
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
+source_ranges = [10.0.10.0/16]
 }
 
-# Allow SSH & ICMP in VPC-2
-resource "google_compute_firewall" "firewall_vpc_2" {
-    name = "allow-ssh-icmp-vpc-2"
-    network = google_compute_network.vpc_2.self_link
+# Firewall-2 for external access SSH, icmp, RDP
+resource "google_compute_firewall" "allow-external" {
+    name = "external-firewall"
+    network = google_compute_network.custom_network.id
 
     allow {
         protocol = "icmp"
@@ -52,46 +33,48 @@ resource "google_compute_firewall" "firewall_vpc_2" {
 
     allow {
         protocol = "tcp"
-        ports = ["22"]
+        ports = ["22", "3389"]
     }
 
     source_ranges = ["0.0.0.0/0"]
 }
 
-resource "google_compute_instance" "vm-terraform" {
-  name         = var.vm_name
-  machine_type = "e2-medium"
-  zone         = "us-central1-a"
+# Firewall-3 for GKE Communication
+resource "google_compute_firewall" "allow-gke" {
+    name = "gke-firewall"
+    network = google_compute_network.custom_network.id
 
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-11"
-      size = "15"
-      labels = {
-        my_label = "value"
-      }
+    allow {
+        protocol = "tcp"
+        ports = ["443", "10250", "15017"]
     }
+
+    source_ranges = ["0.0.0.0/0"]
+}
+
+
+# GKE Cluster
+resource "google_container_cluster" "primary" {
+  project         = var.project
+  name            = "terraform-gke-cluster"
+  location        = var.region
+  network         = google_compute_network.custom_network.id
+  subnetwork      = google_compute_subnetwork.custom_subnet.id
+  deletion_protection = false
+  remove_default_node_pool = true
+  initial_node_count = 1
+}
+
+resource "google_container_node_pool" "primary_preemptible_nodes" {
+  name            = "my-node-pool"
+  cluster         = google_container_cluster.primary.name
+  location        = google_container_cluster.primary.location
+  node_count      = 1
+
+  node_config {
+    machine_type   = "e2-medium"
+    disk_size_gb   = "15"
+    disk_type      = "pd-standard"
+    image_type     = "UBUNTU-CONTAINERD'
   }
-
-  network_interface {
-    network = google_compute_network.vpc_1.self_link
-    subnetwork = google_compute_subnetwork.subnet_1.self_link
-
-    access_config {
-      // Ephemeral public IP
-    }
-  }
-
-  network_interface {
-    network = google_compute_network.vpc_2.self_link
-    subnetwork = google_compute_subnetwork.subnet_2.self_link
-
-    # No External access for second interface
-  }
-
-  metadata = {
-    foo = "bar"
-  }
-
-  metadata_startup_script = "echo hi > /test.txt"
 }
