@@ -31,7 +31,7 @@ variable "machine_type" {
 variable "network" {
   description = "VPC network name"
   type        = string
-  default     = "default"
+  default     = "custom_vpc"
 }
 
 variable "subnetwork" {
