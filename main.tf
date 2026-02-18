@@ -1,10 +1,10 @@
 resource "google_compute_network" "custom_network" {
-  name                    = "custom_vpc"
+  name                    = "custom-vpc"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "custom_subnet" {
-  name          = "custom_subnetwork"
+  name          = "custom-subnetwork"
   ip_cidr_range = "10.0.10.0/16"
   region        = var.region
   network       = google_compute_network.custom_network.id
