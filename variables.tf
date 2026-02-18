@@ -45,9 +45,3 @@ variable "node_count" {
   type        = number
   default     = 1
 }
-
-variable "vm_name" {
-  description = "This is Name of the VM"
-  type        = string
-#  default     = "my-vm"
-}
