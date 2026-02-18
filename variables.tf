@@ -37,7 +37,7 @@ variable "network" {
 variable "subnetwork" {
   description = "Subnetwork name"
   type        = string
-  default     = "default"
+  default     = "custom_subnetwork"
 }
 
 variable "node_count" {
