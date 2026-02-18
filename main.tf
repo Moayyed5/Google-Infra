@@ -75,6 +75,6 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     machine_type   = "e2-medium"
     disk_size_gb   = "15"
     disk_type      = "pd-standard"
-    image_type     = "UBUNTU-CONTAINERD"
+    image_type     = "UBUNTU_CONTAINERD"
   }
 }
