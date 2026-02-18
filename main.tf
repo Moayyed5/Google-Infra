@@ -5,7 +5,7 @@ resource "google_compute_network" "custom_network" {
 
 resource "google_compute_subnetwork" "custom_subnet" {
   name          = "custom-subnetwork"
-  ip_cidr_range = "10.0.10.0/16"
+  ip_cidr_range = "10.0.0.0/24"
   region        = var.region
   network       = google_compute_network.custom_network.id
 }
@@ -19,7 +19,7 @@ resource "google_compute_firewall" "allow-internal" {
     protocol = "all"
   }
 
-source_ranges = ["10.0.10.0/16"]
+source_ranges = ["10.0.0.0/24"]
 }
 
 # Firewall-2 for external access SSH, icmp, RDP
