@@ -1,4 +1,4 @@
-project_id   = "first-project-487719"
+gcp_project_id   = "first-project-487719"
 region       = "us-central1"
 zone         = "us-central1-a"
 cluster_name = "terraform-gke-cluster"
