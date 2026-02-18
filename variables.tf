@@ -16,6 +16,36 @@ variable "zone" {
 #  default     = "us-central1-a"
 }
 
+variable "cluster_name" {
+  description = "Name of the GKE cluster"
+  type        = string
+  default     = "gke-cluster"
+}
+
+variable "machine_type" {
+  description = "Node pool instance type"
+  type        = string
+  default     = "e2-medium"
+}
+
+variable "network" {
+  description = "VPC network name"
+  type        = string
+  default     = "default"
+}
+
+variable "subnetwork" {
+  description = "Subnetwork name"
+  type        = string
+  default     = "default"
+}
+
+variable "node_count" {
+  description = "Number of nodes per zone"
+  type        = number
+  default     = 1
+}
+
 variable "vm_name" {
   description = "This is Name of the VM"
   type        = string
