@@ -55,7 +55,7 @@ resource "google_compute_firewall" "allow-gke" {
 
 # GKE Cluster
 resource "google_container_cluster" "primary" {
-  project         = var.project
+  project         = "first-project-487719"
   name            = "terraform-gke-cluster"
   location        = var.region
   network         = google_compute_network.custom_network.id
